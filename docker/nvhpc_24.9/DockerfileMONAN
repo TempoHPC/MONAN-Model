@@ -1,0 +1,81 @@
+# docker build -t monan:1.2.0-rc .
+# docker run --gpus all -it --entrypoint bash monan:1.2.0-rc
+# docker run --gpus all -it --entrypoint bash --rm monan:1.2.0-rc
+# docker exec -i -t <container_name> bash
+ 
+# LNCC
+FROM nvcr.io/nvidia/nvhpc:24.9-devel-cuda12.6-ubuntu22.04
+
+# Evita interações durante a instalação
+ENV DEBIAN_FRONTEND=noninteractive
+SHELL ["/bin/bash", "-c"]
+
+# Atualiza pacotes do sistema e instala dependências
+RUN apt update -y && apt upgrade -y
+RUN apt install -y build-essential curl git libbsd-dev python3
+RUN apt install -y cmake
+RUN apt install -y make
+RUN apt install -y pkg-config 
+RUN apt install -y vim 
+RUN apt install -y environment-modules
+RUN apt install -y m4
+RUN apt install -y perl
+RUN apt install -y bzip2 
+
+# Melhorias: Adicionados pacotes necessários para a compilação
+RUN apt install -y wget unzip libnetcdf-dev libhdf5-dev openmpi-bin libopenmpi-dev gfortran
+
+# Definição das variáveis de compilação
+ENV NUM_PROCS=8
+ENV CC=mpicc
+ENV FC=mpif90
+ENV CXX=mpicxx
+ENV CPP=$CXX
+
+# Criação do usuário monan
+RUN adduser monan
+USER monan
+WORKDIR /home/monan
+
+# Download e extração do Spack
+RUN wget https://github.com/spack/spack/releases/download/v0.23.1/spack-0.23.1.tar.gz
+RUN tar zxvf spack-0.23.1.tar.gz && rm spack-0.23.1.tar.gz # Melhorado: remoção do tar.gz para otimizar espaço
+
+# Definição de variáveis de ambiente para o Spack
+ENV SPACK_ROOT=/home/monan/spack-0.23.1
+ENV PATH="$SPACK_ROOT/bin:$PATH"
+
+# Clonando o MPAS-Model
+RUN git clone --single-branch --branch 3-criar-dockerfile-para-o-monan-model \
+    https://github.com/TempoHPC/MONAN-Model.git MONAN-Model_v1.2.0-rc_tempohpc
+
+
+# Copiando scripts para dentro do container
+COPY env.sh install.sh make.sh ./
+RUN chmod +x env.sh install.sh make.sh 
+
+SHELL ["/bin/bash", "-c", "source /usr/share/modules/init/bash"]
+RUN module use /opt/nvidia/hpc_sdk/modulefiles
+RUN module load nvhpc-openmpi3/24.9
+
+SHELL ["/bin/bash", "-c", "source spack-0.23.1/share/spack/setup-env.sh"]
+RUN spack compiler find
+RUN spack external find m4
+RUN spack external find perl
+RUN spack external find cmake
+RUN spack external find bzip2
+RUN spack external find openmpi
+RUN spack install parallelio%nvhpc@=24.9 ^parallel-netcdf ^netcdf-c@4.9.2~blosc~zstd
+WORKDIR /home/monan/MPAS-Model_v8.2.2_tempohpc
+RUN git pull
+RUN make CORE=atmosphere clean
+CMD bash ../make.sh
+
+# Executando configuração e instalação
+#RUN /bin/bash -c "source /home/monan/env.sh && /home/monan/install.sh"
+
+# Define o diretório de trabalho padrão
+#WORKDIR /home/monan/MONAN-Model_v1.2.0-rc_tempohpc
+
+# Comando padrão ao iniciar o container
+CMD ["/bin/bash"]

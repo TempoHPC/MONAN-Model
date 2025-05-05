@@ -1,4 +1,4 @@
-# docker build -t monan:1.2.0-rc -f .\DockerfileMONAN_1.2.0-rc .
+# docker build -t monan:1.2.0-rc -f .\DockerfileMONAN_1.2.0-rc.dockerfile .
 # docker run --gpus all -it --entrypoint bash monan:1.2.0-rc
 # docker run --gpus all -it --entrypoint bash --rm monan:1.2.0-rc
 # docker exec -i -t <container_name> bash
@@ -52,9 +52,8 @@ spack external find openmpi && \
 spack install parallelio%nvhpc@=24.9 ^parallel-netcdf ^netcdf-c@4.9.2~blosc~zstd && \
 cd MONAN-Model_v1.2.0-rc_tempohpc && \
 git pull && \
-make CORE=atmosphere clean
-# && \
-#source docker/nvhpc_24.9/make.sh
+make CORE=atmosphere clean && \
+source docker/nvhpc_24.9/make.sh
 
 #RUN spack install mpas-model%nvhpc@=24.9 ^parallelio+pnetcdf
 #RUN spack install parallel-netcdf%nvhpc@=24.9 

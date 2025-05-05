@@ -53,7 +53,15 @@ spack install parallelio%nvhpc@=24.9 ^parallel-netcdf ^netcdf-c@4.9.2~blosc~zstd
 cd MONAN-Model_v1.2.0-rc_tempohpc && \
 git pull && \
 make CORE=atmosphere clean && \
-source docker/nvhpc_24.9/make.sh
+export NETCDF=$(spack location -i netcdf-fortran) && \
+export PNETCDF=$(spack location -i parallel-netcdf) && \
+ln -sf $(spack location -i netcdf-c)/lib/libnetcdf* $(spack location -i netcdf-fortran)/lib/ && \
+make -j 8 pgi CORE=atmosphere USE_PIO=false OPENACC=false OPENMP=true PRECISION=single DEBUG=true 2>&1 | tee make.output
+
+# Baixar o benchmark
+WORKDIR /home/monan
+RUN wget https://www2.mmm.ucar.edu/projects/mpas/benchmark/v7.0/MPAS-A_benchmark_120km_v7.0.tar.gz && \
+    tar -xvzf MPAS-A_benchmark_120km_v7.0.tar.gz
 
 #RUN spack install mpas-model%nvhpc@=24.9 ^parallelio+pnetcdf
 #RUN spack install parallel-netcdf%nvhpc@=24.9 

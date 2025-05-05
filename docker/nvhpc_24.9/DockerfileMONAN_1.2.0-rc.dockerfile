@@ -1,4 +1,4 @@
-# docker build -t monan:1.2.0-rc -f .\DockerfileMONAN_test .
+# docker build -t monan:1.2.0-rc -f .\DockerfileMONAN_1.2.0-rc .
 # docker run --gpus all -it --entrypoint bash monan:1.2.0-rc
 # docker run --gpus all -it --entrypoint bash --rm monan:1.2.0-rc
 # docker exec -i -t <container_name> bash

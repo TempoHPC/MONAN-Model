@@ -63,5 +63,14 @@ WORKDIR /home/monan
 RUN wget https://www2.mmm.ucar.edu/projects/mpas/benchmark/v7.0/MPAS-A_benchmark_120km_v7.0.tar.gz && \
     tar -xvzf MPAS-A_benchmark_120km_v7.0.tar.gz
 
+RUN cd MPAS-A_benchmark_120km_v7.0/ && rm *.TBL && rm *.DBL && rm RRTMG_SW_DATA && rm RRTMG_LW_DATA
+
+WORKDIR /home/monan/MPAS-A_benchmark_120km_v7.0
+RUN ln -sf $(ls ../MONAN-Model_v1.2.0-rc_tempohpc/*.TBL) .
+RUN ln -sf $(ls ../MONAN-Model_v1.2.0-rc_tempohpc/*.DBL) .
+RUN ln -sf $(ls ../MONAN-Model_v1.2.0-rc_tempohpc/RRTMG_?W_DATA) .
+RUN ln -sf ../MONAN-Model_v1.2.0-rc_tempohpc/atmosphere_model .
+RUN sed -i 's/3_00:00:00/0_00:03:00/g' namelist.atmosphere
+
 #RUN spack install mpas-model%nvhpc@=24.9 ^parallelio+pnetcdf
 #RUN spack install parallel-netcdf%nvhpc@=24.9 

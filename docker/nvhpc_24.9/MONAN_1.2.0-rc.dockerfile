@@ -70,6 +70,6 @@ RUN ln -sf $(ls ../MONAN-Model_v1.2.0-rc_tempohpc/*.TBL) .
 RUN ln -sf $(ls ../MONAN-Model_v1.2.0-rc_tempohpc/*.DBL) .
 RUN ln -sf $(ls ../MONAN-Model_v1.2.0-rc_tempohpc/RRTMG_?W_DATA) .
 RUN ln -sf ../MONAN-Model_v1.2.0-rc_tempohpc/atmosphere_model .
-RUN sed -i 's/3_00:00:00/0_00:03:00/g' namelist.atmosphere
+RUN sed -i "s/config_run_duration = '3_00:00:00'/config_run_duration = '0_03:00:00'/g" namelist.atmosphere
 RUN cp ../MONAN-Model_v1.2.0-rc_tempohpc/docker/nvhpc_24.9/run_monan.sh .
 

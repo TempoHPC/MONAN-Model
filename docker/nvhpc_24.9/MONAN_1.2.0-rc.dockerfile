@@ -71,6 +71,5 @@ RUN ln -sf $(ls ../MONAN-Model_v1.2.0-rc_tempohpc/*.DBL) .
 RUN ln -sf $(ls ../MONAN-Model_v1.2.0-rc_tempohpc/RRTMG_?W_DATA) .
 RUN ln -sf ../MONAN-Model_v1.2.0-rc_tempohpc/atmosphere_model .
 RUN sed -i 's/3_00:00:00/0_00:03:00/g' namelist.atmosphere
+RUN cp ../MONAN-Model_v1.2.0-rc_tempohpc/docker/nvhpc_24.9/run_monan.sh .
 
-#RUN spack install mpas-model%nvhpc@=24.9 ^parallelio+pnetcdf
-#RUN spack install parallel-netcdf%nvhpc@=24.9 
